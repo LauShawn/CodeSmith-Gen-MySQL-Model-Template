@@ -1,0 +1,144 @@
+<%@ CodeTemplate Language="C#" TargetLanguage="C#" Description="Template description here." %>
+<%@ Assembly Name="SchemaExplorer" %>
+<%@ Import Namespace="SchemaExplorer" %>
+<%@ Property Name="SourceTable" Type="SchemaExplorer.TableSchema" Category="Context" %>
+<%@ Property Name="NameSpace" Type="String" Category="参数" Description="命名空间" Default="" Optional="True"%>
+<%@ Import Namespace="System.Text.RegularExpressions" %>
+using System;
+using System.Collections.Generic;
+using System.Text;
+ 
+namespace <%=NameSpace%>
+{
+    public class <%=GetClassName(SourceTable)+"DTO" %>
+    {
+        <% foreach (ColumnSchema column in SourceTable.Columns) {%>
+        /// <summary>
+        /// <%=column.Description %>
+        /// </summary>
+        public <%=GetCSharpVariableType(column) %> <%=GetPascalName(column) %> { get; set; }
+        <% }%>
+    }
+}
+<script runat="template">
+ 
+public string MakeSingle(string name)
+{
+    return name;
+}
+public string GetCamelName(ColumnSchema column)
+{
+    return column.Name.Substring(0, 1).ToLower() + column.Name.Substring(1);
+}
+public string GetCamelName(string value)
+{
+    return value.Substring(0, 1).ToLower() + value.Substring(1);
+}
+public string GetPascalName(ColumnSchema column)
+{
+    return GetPascalName(column.Name);
+}
+public string GetPascalName(string value)
+{
+    var arrary = value.Split('_');
+    var name = string.Empty;
+    foreach(var s in arrary){
+        name += s.Substring(0,1).ToUpper() + s.Substring(1,s.Length-1);
+    }
+    return name;
+}
+public string GetClassName(TableSchema table)
+{
+    return GetPascalName(MakeSingle(table.Name));
+}    
+public string GetForeignKeyColumnType(ColumnSchema column)
+{        
+    return column.Table.ForeignKeys[0].PrimaryKeyTable.Name;
+}
+public string GetForeignKeyColumnName(ColumnSchema column)
+{    
+    if(column.Name.Substring(column.Name.Length-2).ToLower() == "id")
+    {
+        return column.Name.Substring(0,column.Name.Length-2);
+    }
+    else
+    {
+        return column.Name;
+    }
+}
+ 
+public string GetStructureParameter()
+{//int id,string name
+        string temp = "";
+        foreach(ColumnSchema column in SourceTable.NonPrimaryKeyColumns) 
+        {
+                if(column.IsForeignKeyMember) 
+                {
+                    temp += GetPascalName(GetForeignKeyColumnType(column)) + " " +GetCamelName(GetForeignKeyColumnName(column)) + ",";
+                }
+                else
+                {
+                    temp += GetCSharpVariableType(column) + " " + GetCamelName(column) + ",";
+                }
+        }
+        return temp.Substring(0,temp.Length-1);
+}
+public string GetPrimaryKeyType(TableSchema table)
+{
+    if (table.PrimaryKey != null)
+    {
+        if (table.PrimaryKey.MemberColumns.Count == 1)
+        {
+            return GetCSharpVariableType(table.PrimaryKey.MemberColumns[0]);
+        }
+        else
+        {
+            throw new ApplicationException("This template will not work on primary keys with more than one member column.");
+        }
+    }
+    else
+    {
+        throw new ApplicationException("This template will only work on tables with a primary key.");
+    }
+}
+public string GetCSharpVariableType(ColumnSchema column)
+{
+    if (column.Name.EndsWith("TypeCode")) return column.Name;
+    
+    switch (column.DataType)
+    {
+        case DbType.AnsiString: return "string";
+        case DbType.AnsiStringFixedLength: return "string";
+        case DbType.Binary: return "byte[]";
+        case DbType.Boolean: return "bool";
+        case DbType.Byte: return "byte";
+        case DbType.Currency: return "decimal";
+        case DbType.Date: return "DateTime";
+        case DbType.DateTime: return "DateTime";
+        case DbType.Decimal: return "decimal";
+        case DbType.Double: return "double";
+        case DbType.Guid: return "Guid";
+        case DbType.Int16: return "short";
+        case DbType.Int32: return "int";
+        case DbType.Int64: return "long";
+        case DbType.Object: return "object";
+        case DbType.SByte: return "sbyte";
+        case DbType.Single: return "float";
+        case DbType.String: return "string";
+        case DbType.StringFixedLength: return "string";
+        case DbType.Time: return "TimeSpan";
+        case DbType.UInt16: return "ushort";
+        case DbType.UInt32: return "uint";
+        case DbType.UInt64: return "ulong";
+        case DbType.VarNumeric: return "decimal";
+        default:
+        {
+            return "__UNKNOWN__" + column.NativeType;
+        }
+    }
+}    
+public override string GetFileName()
+{
+    return     GetClassName(SourceTable) + ".cs";
+}
+</script>
