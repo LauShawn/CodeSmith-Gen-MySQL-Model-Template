@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using RedGoose.Data.DapperExtensions.Att;
-using MySqlX.XDevAPI.Relational;
  
 namespace <%=NameSpace%>
 {
