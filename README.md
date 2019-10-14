@@ -13,3 +13,59 @@ CodeSmith生成MySQL实体模板
 server=...;port=3306;User Id=...;database=...;password=...
 
 ## 输入命名空间，点击Generate即可生成相应的类。
+
+# 结果示例
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Text;
+ 
+namespace NetCoreApiDemo.Dal.Model
+{
+    [Table("order")]
+    public class OrderDO
+    {
+        /// <summary>
+        /// 主订单自增主键
+        /// </summary>
+        [Key]
+        [Column("id")]
+        public ulong Id { get; set; }
+        /// <summary>
+        /// 用户Id
+        /// </summary>
+        [Column("user_id")]
+        public string UserId { get; set; }
+        /// <summary>
+        /// 用户姓名
+        /// </summary>
+        [Column("user_name")]
+        public string UserName { get; set; }
+        /// <summary>
+        /// 用户联系电话
+        /// </summary>
+        [Column("user_tel")]
+        public string UserTel { get; set; }
+        /// <summary>
+        /// 创建人
+        /// </summary>
+        [Column("create_by")]
+        public string CreateBy { get; set; }
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        [Column("create_time")]
+        public DateTime CreateTime { get; set; }
+        /// <summary>
+        /// 修改人
+        /// </summary>
+        [Column("modify_by")]
+        public string ModifyBy { get; set; }
+        /// <summary>
+        /// 修改时间
+        /// </summary>
+        [Column("modify_time")]
+        public DateTime ModifyTime { get; set; }
+    }
+}
+```
